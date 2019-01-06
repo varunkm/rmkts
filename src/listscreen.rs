@@ -1,14 +1,18 @@
 use crate::screen::Screen;
 use crate::data::StockDataDisplay;
+use crate::output::MyWindow;
+use pancurses::Window;
 
 pub struct ListScreen {
-    data: Vec<StockDataDisplay>
+    data: Vec<StockDataDisplay>,
+    win: MyWindow
 }
 
 impl ListScreen {
-    pub fn new() -> ListScreen {
+    pub fn new(win: MyWindow) -> ListScreen {
         ListScreen{
-            data: vec![]
+            data: vec![],
+            win: win
         }
     }
 }
@@ -19,15 +23,15 @@ impl Screen<Vec<StockDataDisplay>> for ListScreen {
     }
 
     fn paint(&mut self){
-        for r in self.data.iter(){
-            println!("{}\t{}", r.ticker, r.last_price);
-        }
+        self.win.win.mvaddstr(10, 10, "TEST");
     }
 
     fn clear(&mut self){
+        self.win.win.erase();
     }
 
     fn refresh(&mut self){
+        self.win.win.refresh();
     }
 
 }

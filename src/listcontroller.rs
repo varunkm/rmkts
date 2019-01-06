@@ -1,9 +1,10 @@
 use crate::listscreen::ListScreen;
 use crate::screen::Screen;
 use crate::data::{StockDataDisplay, get_stock_data};
+use crate::output::MyWindow;
 use std::{thread, time};
 use std::sync::{Arc, Mutex};
-
+use pancurses::Window;
 /*
 TODO: 
 - Fetch real data
@@ -11,10 +12,10 @@ TODO:
 - Add ability to kill thread through some shared flag or a channel
 */
 
-pub fn run() {
+pub fn run(win: MyWindow) {
     // screen is wrapped in a Mutex to allow for safe concurrent
     // mutation by UI thread and state update thread
-    let state = Arc::new(Mutex::new(ListScreen::new()));
+    let state = Arc::new(Mutex::new(ListScreen::new(win)));
     let thread_state = state.clone();
 
     // create a thread to asynchronously fetch state updates
@@ -25,7 +26,9 @@ pub fn run() {
                 &vec![String::from("AAPL"), String::from("FB")]);
             let mut thread_state = thread_state.lock().unwrap();
             (*thread_state).update_state(Box::new(stocks));
+            (*thread_state).clear();
             (*thread_state).paint();
+            (*thread_state).refresh();
             drop(thread_state);
             let intvl = time::Duration::from_millis(1000);
             thread::sleep(intvl);
