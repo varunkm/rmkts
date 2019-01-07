@@ -14,6 +14,7 @@ impl MyWindow {
 
 unsafe impl Send for MyWindow {}
 
+
 pub fn align_left(s: String, space: usize) -> String {
     let trunc: String = s.chars().take(space).collect();
     let diff: usize = space - trunc.chars().count();
