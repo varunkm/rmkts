@@ -18,7 +18,6 @@ pub fn run(win: MyWindow) {
 
     let state = Arc::new(Mutex::new(ListScreen::new(win)));
     let thread_state = state.clone();
-    let temp_state = state.clone();
 
     // create a thread to asynchronously fetch state updates
     // and refresh the screen when new data is retreived.
