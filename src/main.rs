@@ -8,10 +8,6 @@ mod screen;
 mod listscreen;
 mod output;
 
-
-
-use std::{thread, time};
-
 fn main() {
     let win = output::MyWindow::new(initscr());
     start_color();

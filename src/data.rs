@@ -65,14 +65,14 @@ impl StockData {
         }
     }
 
-    fn toDisplay(&self) -> StockDataDisplay {
+    fn to_display(&self) -> StockDataDisplay {
          StockDataDisplay {
              ticker: self.ticker.clone(),
              last_price: money_format(self.last_price),
              open: money_format(self.open),
              high: money_format(self.high),
              low: money_format(self.low),
-             close: money_format(self.low),
+             close: money_format(self.close),
              change: round_format(self.change),
              change_p: percent_format(self.change_p),
              volume: self.volume.to_string(),
@@ -108,9 +108,7 @@ fn get_raw_data(tickers: &Vec<String>) -> Vec<StockData>{
 }
 
 pub fn get_stock_data(tickers: &Vec<String>) -> Vec<StockDataDisplay>{
-    get_raw_data(tickers).into_iter().map(|x| x.toDisplay()).collect()
+    get_raw_data(tickers).into_iter().map(|x| x.to_display()).collect()
 }
 
-fn main(){
-    
-}
+

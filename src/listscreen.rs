@@ -1,3 +1,4 @@
+
 use crate::screen::Screen;
 use crate::data::StockDataDisplay;
 use crate::output::{MyWindow, align_right, align_centre};
@@ -39,7 +40,7 @@ impl ListScreen {
         };
 
         
-        if (sel){
+        if sel {
             self.win.win.attrset(Attribute::Reverse);
         }
         self.win.win.mvaddstr(row, col, data.ticker.clone());
@@ -81,11 +82,11 @@ impl ListScreen {
     
     pub fn scroll_up(&mut self){
         self.cur_row -= 1;
-        if (self.cur_row < 0) {
+        if self.cur_row < 0 {
             self.cur_row = 0;
         }
 
-        if (self.cur_row < self.table_start) {
+        if self.cur_row < self.table_start {
             self.table_start = self.cur_row;
             self.table_end -= 1;
         }
@@ -93,11 +94,11 @@ impl ListScreen {
 
     pub fn scroll_dn(&mut self){
         self.cur_row += 1;
-        if (self.cur_row >= self.data.len() as i32) {
+        if self.cur_row > self.data.len() as i32 {
             self.cur_row = (self.data.len() - 1) as i32;
         }
 
-        if (self.cur_row > self.table_end) {
+        if self.cur_row > self.table_end {
             self.table_end = self.cur_row;
             self.table_start += 1;
         }
@@ -133,7 +134,7 @@ impl Screen<Vec<StockDataDisplay>> for ListScreen {
         self.paint_headers(row);
         row += 1;
         for (i, d) in self.data.iter().enumerate() {
-            if (i < self.table_start as usize|| i > self.table_end as usize) {
+            if i < self.table_start as usize || i > self.table_end as usize {
                 continue;
             }
             

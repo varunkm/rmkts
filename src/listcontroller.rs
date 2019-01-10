@@ -50,7 +50,6 @@ pub fn run(win: MyWindow) {
     });
     
     // main UI routine: handle input and transitions to other screens
-    let mut x = 1;
     loop {
         let mut state = state.lock().unwrap();
         match (*state).win.win.getch() {

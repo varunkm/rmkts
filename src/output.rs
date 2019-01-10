@@ -24,8 +24,8 @@ pub fn align_left(s: String, space: usize) -> String {
 pub fn align_centre(s: String, space: usize) -> String {
     let trunc: String = s.chars().take(space).collect();
     let diff = space - trunc.chars().count();
-    let spaces_left = (std::iter::repeat(" ").take(diff / 2).collect::<String>());
-    let spaces_right = (std::iter::repeat(" ").take(diff / 2 + diff % 2).collect::<String>()); 
+    let spaces_left = std::iter::repeat(" ").take(diff / 2).collect::<String>();
+    let spaces_right = std::iter::repeat(" ").take(diff / 2 + diff % 2).collect::<String>(); 
     format!("{}{}{}", spaces_left, trunc, spaces_right)
 }
 
