@@ -1,10 +1,14 @@
 use crate::listscreen::ListScreen;
 use crate::screen::Screen;
-use crate::data::{StockDataDisplay, get_stock_data};
+use crate::data::get_stock_data;
 use crate::output::MyWindow;
 use std::{thread, time};
 use std::sync::{Arc, Mutex};
-use pancurses::{Window, Input};
+use pancurses::Input;
+use std::fs::File;
+use std::io::BufReader;
+use std::io::BufRead;
+
 /*
 TODO: 
 - Fetch real data
@@ -18,13 +22,22 @@ pub fn run(win: MyWindow) {
 
     let state = Arc::new(Mutex::new(ListScreen::new(win)));
     let thread_state = state.clone();
+    
+    let f = File::open(".rmktsrc").unwrap();
 
+    
+    let file = BufReader::new(&f);
+    let mut stocklist = Vec::new();
+    for line in file.lines() {
+        let l = line.unwrap();
+        stocklist.push(String::from(format!("{}", l).trim()));
+    }
+    println!("here");
     // create a thread to asynchronously fetch state updates
     // and refresh the screen when new data is retreived.
     thread::spawn(move || {
         loop {
-            let stocks = get_stock_data(
-                &vec![String::from("AAPL"), String::from("FB")]);
+            let stocks = get_stock_data(&stocklist);
 
             let mut thread_state = thread_state.lock().unwrap();
             (*thread_state).update_state(Box::new(stocks));
