@@ -32,7 +32,6 @@ pub fn run(win: MyWindow) {
         let l = line.unwrap();
         stocklist.push(String::from(format!("{}", l).trim()));
     }
-    println!("here");
     // create a thread to asynchronously fetch state updates
     // and refresh the screen when new data is retreived.
     thread::spawn(move || {
