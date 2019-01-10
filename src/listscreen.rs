@@ -127,7 +127,6 @@ impl Screen<Vec<StockDataDisplay>> for ListScreen {
     }
 
     fn paint(&mut self){
-        self.win.win.draw_box('|', '-');
         self.resize();
         self.paint_titles();
         let mut row = 1;
