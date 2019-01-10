@@ -18,7 +18,7 @@ pub fn align_left(s: String, space: usize) -> String {
     let trunc: String = s.chars().take(space).collect();
     let diff: usize = space - trunc.chars().count();
     let spaces = std::iter::repeat(" ").take(diff).collect::<String>();
-    format!("{}{}", spaces,trunc)
+    format!("{}{}", trunc, spaces)
 }
 
 pub fn align_centre(s: String, space: usize) -> String {
@@ -33,5 +33,5 @@ pub fn align_right(s: String, space: usize) -> String {
     let trunc: String = s.chars().take(space).collect();
     let diff = space - trunc.chars().count();
     let spaces = std::iter::repeat(" ").take(diff).collect::<String>();
-    format!("{}{}", trunc, spaces)
+    format!("{}{}", spaces, trunc)
 }
