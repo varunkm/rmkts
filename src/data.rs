@@ -1,6 +1,6 @@
 extern crate serde_json;
 
-use serde_json::{Value, Error};
+use serde_json::Value;
 
 const BASE_URL: &str = "https://query1.finance.yahoo.com/v7/finance/quote?symbols=";
 
@@ -40,11 +40,11 @@ fn round_format(data: f64) -> String {
 }
 
 fn money_format(data: f64) -> String {
-    format!("${}", round(data))
+    format!("${:.2}", round(data))
 }
 
 fn percent_format(data: f64) -> String {
-    format!("{}%", round(data * 100.0))
+    format!("{:.2}%", round(data * 100.0))
 }
 
 impl StockData {

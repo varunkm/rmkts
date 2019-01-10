@@ -1,66 +1,93 @@
 use crate::screen::Screen;
 use crate::data::StockDataDisplay;
-use crate::output::MyWindow;
-use crate::output::{align_left, align_centre, align_right};
-use pancurses::Attribute;
-use std::time::{Duration, SystemTime};
+use crate::output::{MyWindow, align_right, align_centre};
+use pancurses::*;
+use std::time::SystemTime;
 
 
-const TITLE_ROWS: i32 = 1;
+const TABLE_OFFSET: i32 = 2;
 
 pub struct ListScreen {
     data: Vec<StockDataDisplay>,
     pub win: MyWindow,
     cur_row: i32,
-    disp_top: i32,
-    disp_bot: i32
+    table_start: i32,
+    table_end: i32
 }
 
 impl ListScreen {
     pub fn new(win: MyWindow) -> ListScreen {
         ListScreen{
             data: vec![],
-            disp_bot: win.win.get_max_y(),
-            win: win,
+            table_start: 0,
+            table_end: win.win.get_max_y() - TABLE_OFFSET - 1,
             cur_row: 0,
-            disp_top: 0
+            win: win,
         }
     }
 
     pub fn paint_row(&self, data: &StockDataDisplay, row: i32, sel: bool){
         let mut col = 0;
+        let neg: bool = data.change.chars().next().unwrap() == '-';
+        let change_col = {
+            if neg{
+                1
+            }
+            else {
+                2
+            }
+        };
+
+        
         if (sel){
             self.win.win.attrset(Attribute::Reverse);
         }
         self.win.win.mvaddstr(row, col, data.ticker.clone());
+        
         self.win.win.attrset(Attribute::Normal);
         col += 10;
+        
         self.win.win.attrset(Attribute::Bold);
-        self.win.win.mvaddstr(row, col, data.last_price.clone());
+        self.win.win.mvaddstr(row, col, align_right(data.last_price.clone(), 10));
         self.win.win.attrset(Attribute::Normal);
         col += 10;
-        self.win.win.mvaddstr(row, col, data.change.clone());
+
+        self.win.win.attrset(ColorPair(change_col));
+        self.win.win.mvaddstr(row, col, align_right(data.change.clone(), 10));
         col += 10;
-        self.win.win.mvaddstr(row, col, data.change_p.clone());
+        
+        self.win.win.mvaddstr(row, col, align_right(data.change_p.clone(), 10));
         col += 10;
-        self.win.win.mvaddstr(row, col, data.open.clone());
+        self.win.win.attrset(Attribute::Normal);
+        self.win.win.mvaddstr(row, col, align_right(data.open.clone(), 10));
         col += 10;
-        self.win.win.mvaddstr(row, col, data.high.clone());
+        
+        self.win.win.mvaddstr(row, col, align_right(data.high.clone(), 10));
         col += 10;
-        self.win.win.mvaddstr(row, col, data.low.clone());
+        
+        self.win.win.mvaddstr(row, col, align_right(data.low.clone(), 10));
         col += 10;
-        self.win.win.mvaddstr(row, col, data.close.clone());
+        
+        self.win.win.mvaddstr(row, col, align_right(data.close.clone(), 10));
     }
 
+    pub fn resize(&mut self){
+        let table_cap = self.win.win.get_max_y() - TABLE_OFFSET - 1;
+        self.table_end = self.table_start + table_cap;
+        if self.cur_row > self.table_end {
+            self.cur_row = self.table_end - 1;
+        }
+    }
+    
     pub fn scroll_up(&mut self){
         self.cur_row -= 1;
         if (self.cur_row < 0) {
             self.cur_row = 0;
         }
 
-        if (self.cur_row < self.disp_top) {
-            self.disp_top = self.cur_row;
-            self.disp_bot -= 1;
+        if (self.cur_row < self.table_start) {
+            self.table_start = self.cur_row;
+            self.table_end -= 1;
         }
     }
 
@@ -70,9 +97,9 @@ impl ListScreen {
             self.cur_row = (self.data.len() - 1) as i32;
         }
 
-        if (self.cur_row > self.disp_bot) {
-            self.disp_bot = self.cur_row;
-            self.disp_top += 1;
+        if (self.cur_row > self.table_end) {
+            self.table_end = self.cur_row;
+            self.table_start += 1;
         }
     }
     
@@ -81,7 +108,7 @@ impl ListScreen {
         let mut col = 0;
         self.win.win.attrset(Attribute::Bold);
         for header in headers.iter(){
-            self.win.win.mvaddstr(row, col, header);
+            self.win.win.mvaddstr(row, col, align_centre(header.to_string(), 10));
             col += 10;
         }
         self.win.win.attrset(Attribute::Normal);
@@ -100,11 +127,17 @@ impl Screen<Vec<StockDataDisplay>> for ListScreen {
     }
 
     fn paint(&mut self){
+        self.win.win.draw_box('|', '-');
+        self.resize();
         self.paint_titles();
         let mut row = 1;
         self.paint_headers(row);
         row += 1;
-        for (i, d) in self.data.iter().enumerate(){
+        for (i, d) in self.data.iter().enumerate() {
+            if (i < self.table_start as usize|| i > self.table_end as usize) {
+                continue;
+            }
+            
             self.paint_row(d, row, i==self.cur_row as usize);
             row += 1;
         }
