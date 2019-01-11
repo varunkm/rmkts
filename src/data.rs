@@ -36,7 +36,7 @@ fn round(data: f64) -> f64{
 }    
 
 fn round_format(data: f64) -> String {
-    round(data).to_string()
+    format!("{:.2}", round(data))
 }
 
 fn money_format(data: f64) -> String {
