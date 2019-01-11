@@ -80,7 +80,8 @@ pub fn run(win: MyWindow) {
             _ => ()
         }
         drop(state);
-        let intvl = time::Duration::from_millis(100);
+        // sleep for a bit to allow a chance for the state update thread to get control
+        let intvl = time::Duration::from_millis(10);
         thread::sleep(intvl);
     }
 }
