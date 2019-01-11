@@ -104,7 +104,7 @@ impl ListScreen {
 
     pub fn scroll_dn(&mut self){
         self.cur_row += 1;
-        if self.cur_row > self.data.len() as i32 {
+        if self.cur_row > (self.data.len() - 1) as i32 {
             self.cur_row = (self.data.len() - 1) as i32;
         }
 

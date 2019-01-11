@@ -22,19 +22,24 @@ pub fn run(win: MyWindow) {
 
     let state = Arc::new(Mutex::new(ListScreen::new(win)));
     let thread_state = state.clone();
+
+    let mut stocklist = Vec::new();
     
-    let f = match File::open(".rmktsrc"){
-        Ok(file) => file,
-        Err(err) => {println!("Config not found"); return},
+    match File::open(".rmktsrc"){
+        Ok(f) => {
+            let file = BufReader::new(&f);
+            for line in file.lines() {
+                let l = line.unwrap();
+                stocklist.push(String::from(format!("{}", l).trim()));
+            }
+        },
+        Err(err) => {
+            let int_stocklist = vec!["AAPL", "AMZN", "FB", "GOOGL", "NFLX"];
+            stocklist = int_stocklist.iter().map(|x| x.to_string()).collect();
+        },
     };
 
     
-    let file = BufReader::new(&f);
-    let mut stocklist = Vec::new();
-    for line in file.lines() {
-        let l = line.unwrap();
-        stocklist.push(String::from(format!("{}", l).trim()));
-    }
     // create a thread to asynchronously fetch state updates
     // and refresh the screen when new data is retreived.
     thread::spawn(move || {
