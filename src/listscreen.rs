@@ -13,7 +13,8 @@ pub struct ListScreen {
     pub win: MyWindow,
     cur_row: i32,
     table_start: i32,
-    table_end: i32
+    table_end: i32,
+    done: bool
 }
 
 impl ListScreen {
@@ -24,6 +25,7 @@ impl ListScreen {
             table_end: win.win.get_max_y() - TABLE_OFFSET - 1,
             cur_row: 0,
             win: win,
+            done: false,
         }
     }
 
@@ -72,6 +74,14 @@ impl ListScreen {
         self.win.win.mvaddstr(row, col, align_right(data.close.clone(), 10));
     }
 
+    pub fn is_finished(&mut self) -> bool{
+        self.done
+    }
+    
+    pub fn finish(&mut self){
+        self.done = true;
+    }
+    
     pub fn resize(&mut self){
         let table_cap = self.win.win.get_max_y() - TABLE_OFFSET - 1;
         self.table_end = self.table_start + table_cap;

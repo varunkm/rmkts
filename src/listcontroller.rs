@@ -23,7 +23,10 @@ pub fn run(win: MyWindow) {
     let state = Arc::new(Mutex::new(ListScreen::new(win)));
     let thread_state = state.clone();
     
-    let f = File::open(".rmktsrc").unwrap();
+    let f = match File::open(".rmktsrc"){
+        Ok(file) => file,
+        Err(err) => {println!("Config not found"); return},
+    };
 
     
     let file = BufReader::new(&f);
@@ -39,6 +42,10 @@ pub fn run(win: MyWindow) {
             let stocks = get_stock_data(&stocklist);
 
             let mut thread_state = thread_state.lock().unwrap();
+            if (*thread_state).is_finished(){
+                drop(thread_state);
+                return;
+            }
             (*thread_state).update_state(Box::new(stocks));
             (*thread_state).clear();
             (*thread_state).paint();
@@ -64,6 +71,11 @@ pub fn run(win: MyWindow) {
                 (*state).scroll_up();
                 (*state).paint();
                 (*state).refresh();
+            },
+            Some(Input::Character('q')) => {
+                (*state).finish();
+                drop(state);
+                break;
             },
             _ => ()
         }

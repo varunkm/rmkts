@@ -17,4 +17,5 @@ fn main() {
     noecho();
     half_delay(1);
     listcontroller::run(win);
+    endwin();
 }
