@@ -81,34 +81,71 @@ impl StockData {
     }
 }
 
-fn get_raw_data(tickers: &Vec<String>) -> Vec<StockData>{
+fn extract_stock_data(r: &Value) -> Result<StockData, &'static str> {
+    let s = StockData::new(r["symbol"].as_str().unwrap_or(""),
+                           r["regularMarketPrice"].as_f64().unwrap_or(0.0),
+                           r["regularMarketOpen"].as_f64().unwrap_or(0.0),
+                           r["regularMarketDayHigh"].as_f64().unwrap_or(0.0),
+                           r["regularMarketDayLow"].as_f64().unwrap_or(0.0),
+                           r["regularMarketPreviousClose"].as_f64().unwrap_or(0.0),
+                           r["regularMarketChange"].as_f64().unwrap_or(0.0),
+                           r["regularMarketVolume"].as_i64().unwrap_or(0),
+                           r["marketCap"].as_i64().unwrap_or(0));
+    Ok(s)
+}
+
+// get_raw_data:
+//  - takes a list of tickers, constructs the API url
+//  - makes a GET request to this url *
+//  - extracts the text from the response *
+//  - deserialises the json in the text *
+//  - parses the json to produce a list of StockData structs *(on each element)
+// * - can produce an error
+fn get_raw_data(tickers: &Vec<String>) -> Result<Vec<Result<StockData, &'static str>>, String>{
     // construct request string
     let mut requrl = String::from(BASE_URL);
     for s in tickers{
         requrl.push_str(&s);
         requrl.push(',');
     }
-    let mut res = reqwest::get(&requrl).unwrap();
-    let body = res.text().unwrap();
-    let v: Value = serde_json::from_str(&body).unwrap();
+    let mut res = reqwest::get(&requrl).map_err(|e| e.to_string())?;
+    let body = res.text().map_err(|e| e.to_string())?;
+    let v: Value = serde_json::from_str(&body).map_err(|e| e.to_string())?;
     let mut ret = Vec::new();
     
-    for r in v["quoteResponse"]["result"].as_array().unwrap() {
-        ret.push(StockData::new(r["symbol"].as_str().unwrap(),
-                                r["regularMarketPrice"].as_f64().unwrap(),
-                                r["regularMarketOpen"].as_f64().unwrap(),
-                                r["regularMarketDayHigh"].as_f64().unwrap(),
-                                r["regularMarketDayLow"].as_f64().unwrap(),
-                                r["regularMarketPreviousClose"].as_f64().unwrap(),
-                                r["regularMarketChange"].as_f64().unwrap(),
-                                r["regularMarketVolume"].as_i64().unwrap(),
-                                r["marketCap"].as_i64().unwrap()));
+    for r in v["quoteResponse"]["result"].as_array().unwrap_or(&vec![]) {
+        ret.push(extract_stock_data(r))
     }
-    ret
+    Ok(ret)
+}
+
+fn convert_to_display(item: Result<StockData, &'static str>) -> StockDataDisplay {
+    match item {
+        Ok(data) => data.to_display(),
+        Err(data) => {
+            StockDataDisplay {
+                ticker: String::from("ERR"),
+                last_price: String::new(),
+                open: String::new(),
+                high: String::new(),
+                low: String::new(),
+                close: String::new(),
+                change: String::new(),
+                change_p: String::new(),
+                volume: String::new(),
+                mktcap: String::new(),
+            }
+        },
+    }
 }
 
 pub fn get_stock_data(tickers: &Vec<String>) -> Vec<StockDataDisplay>{
-    get_raw_data(tickers).into_iter().map(|x| x.to_display()).collect()
+    match get_raw_data(tickers) {
+        Ok(data) => {
+            data.into_iter().map(|x| convert_to_display(x)).collect()
+        },
+        Err(e) => vec![],
+    }
 }
 
 
