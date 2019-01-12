@@ -31,7 +31,7 @@ impl ListScreen {
 
     pub fn paint_row(&self, data: &StockDataDisplay, row: i32, sel: bool){
         let mut col = 0;
-        let neg: bool = data.change.chars().next().unwrap() == '-';
+        let neg: bool = data.change.starts_with("-");
         let change_col = {
             if neg{
                 1

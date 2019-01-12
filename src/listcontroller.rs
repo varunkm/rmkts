@@ -29,8 +29,12 @@ pub fn run(win: MyWindow) {
         Ok(f) => {
             let file = BufReader::new(&f);
             for line in file.lines() {
-                let l = line.unwrap();
-                stocklist.push(String::from(format!("{}", l).trim()));
+                match line {
+                    Ok(l) => {
+                        stocklist.push(String::from(format!("{}", l).trim()));
+                    },
+                    Err(_) => continue,
+                };
             }
         },
         Err(err) => {
