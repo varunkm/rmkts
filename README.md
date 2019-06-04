@@ -7,7 +7,7 @@ Wrote this program as a way of learning Rust.
 ```
 cargo run
 ```
-You must have a `.rmktsrc` file in your current directory. There is an example one in `/src`
+You must have a `.rmktsrc` file in your current directory. There is an example one in `src/`
 
 ## Controls
 ```
